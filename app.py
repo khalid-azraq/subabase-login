@@ -16,7 +16,8 @@ SUPABASE_KEY = os.getenv('SUPABASE_KEY')
 def index():
     if 'user_session' in session:
         return redirect(url_for('dashboard'))
-    return redirect(url_for('login'))
+    return redirect(url_for('login_page'))
+
 
 @app.route('/login', methods=['GET'])
 def login_page():
@@ -69,6 +70,7 @@ def signup_page():
     if 'user_session' in session: # إذا كان المستخدم مسجلاً دخوله بالفعل، اذهب إلى الداشبورد
         return redirect(url_for('dashboard'))
     return render_template('signup.html', supabase_url=SUPABASE_URL, supabase_key=SUPABASE_KEY)
+
 
 @app.route('/logout')
 def logout():
