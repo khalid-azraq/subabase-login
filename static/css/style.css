@@ -1,1 +1,109 @@
 
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f7f6;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    direction: rtl; /* For Arabic */
+}
+
+.container {
+    width: 100%;
+    max-width: 450px; /* Increased width */
+    padding: 20px;
+}
+
+.login-container, .dashboard-container {
+    background-color: #fff;
+    padding: 30px 40px; /* Increased padding */
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    text-align: center; /* Center text elements */
+}
+
+h2 {
+    color: #333;
+    margin-bottom: 25px; /* Increased margin */
+    font-size: 2em; /* Larger heading */
+}
+
+.form-group {
+    margin-bottom: 20px; /* Increased margin */
+    text-align: right; /* Align labels to the right */
+}
+
+.form-group label {
+    display: block;
+    color: #555;
+    margin-bottom: 8px; /* Increased margin */
+    font-size: 1.1em; /* Larger labels */
+}
+
+.form-group input[type="email"],
+.form-group input[type="password"] {
+    width: calc(100% - 22px); /* Adjust width considering padding */
+    padding: 12px 10px; /* Increased padding */
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 1em; /* Larger input text */
+    text-align: right; /* For Arabic input */
+}
+
+button {
+    width: 100%;
+    padding: 12px; /* Increased padding */
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1.1em; /* Larger button text */
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.message {
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+    font-size: 0.95em;
+}
+
+.message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.message.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+p {
+    margin-top: 20px; /* Increased margin */
+    font-size: 0.95em;
+}
+
+p a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+p a:hover {
+    text-decoration: underline;
+}

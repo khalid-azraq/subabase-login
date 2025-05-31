@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+
+{% block title %}تسجيل الدخول{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <h2>تسجيل الدخول</h2>
+    <div id="auth-message-login" class="message" style="display:none;"></div> <!-- غيرت الـ ID هنا -->
+    <form id="login-form">
+        <div class="form-group">
+            <label for="email-login">البريد الإلكتروني:</label> <!-- غيرت الـ ID هنا -->
+            <input type="email" id="email-login" name="email" required>
+        </div>
+        <div class="form-group">
+            <label for="password-login">كلمة المرور:</label> <!-- غيرت الـ ID هنا -->
+            <input type="password" id="password-login" name="password" required>
+        </div>
+        <button type="submit" id="login-button">تسجيل الدخول</button>
+    </form>
+   <p>ليس لديك حساب؟ <a href="{{ url_for('signup_page') }}">أنشئ حسابًا جديدًا</a></p>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const SUPABASE_URL = "{{ supabase_url }}";
+    const SUPABASE_KEY = "{{ supabase_key }}";
+</script>
+<script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+{% endblock %}

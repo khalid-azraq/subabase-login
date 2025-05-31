@@ -32,6 +32,9 @@ def dashboard():
     user_info = session.get('user_session')
     return render_template('dashboard.html', user_email=user_info.get('email', 'المستخدم'))
 
+
+
+
 # هذا المسار مهم لإنشاء جلسة Flask بعد نجاح تسجيل الدخول من جانب العميل
 @app.route('/set-session', methods=['POST'])
 def set_session():
@@ -61,11 +64,20 @@ def set_session():
     }
     return jsonify({'message': 'Session created successfully'}), 200
 
+@app.route('/signup', methods=['GET'])
+def signup_page():
+    if 'user_session' in session: # إذا كان المستخدم مسجلاً دخوله بالفعل، اذهب إلى الداشبورد
+        return redirect(url_for('dashboard'))
+    return render_template('signup.html', supabase_url=SUPABASE_URL, supabase_key=SUPABASE_KEY)
+
 @app.route('/logout')
 def logout():
     session.pop('user_session', None)
     # ملاحظة: تسجيل الخروج من Supabase يتم عبر JavaScript في العميل
     return redirect(url_for('login_page'))
+
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

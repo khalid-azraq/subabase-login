@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+
+{% block title %}إنشاء حساب جديد{% endblock %}
+
+{% block content %}
+<div class="signup-container">
+    <h2>إنشاء حساب جديد</h2>
+    <div id="auth-message-signup" class="message" style="display:none;"></div> <!-- غيرت الـ ID هنا -->
+    <form id="signup-form">
+        <div class="form-group">
+            <label for="email-signup">البريد الإلكتروني:</label> <!-- غيرت الـ ID هنا -->
+            <input type="email" id="email-signup" name="email" required>
+        </div>
+        <div class="form-group">
+            <label for="password-signup">كلمة المرور:</label> <!-- غيرت الـ ID هنا -->
+            <input type="password" id="password-signup" name="password" required>
+        </div>
+        <div class="form-group">
+            <label for="confirm-password">تأكيد كلمة المرور:</label>
+            <input type="password" id="confirm-password" name="confirm-password" required>
+        </div>
+        <button type="submit" id="signup-button">إنشاء حساب</button>
+    </form>
+    <p>لديك حساب بالفعل؟ <a href="{{ url_for('login_page') }}">سجل الدخول</a></p>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const SUPABASE_URL = "{{ supabase_url }}";
+    const SUPABASE_KEY = "{{ supabase_key }}";
+</script>
+<script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+{% endblock %}

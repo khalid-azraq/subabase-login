@@ -1,0 +1,40 @@
+
+{% extends "layout.html" %}
+
+{% block title %}لوحة التحكم{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <h2>مرحباً بك في لوحة التحكم, {{ user_email }}!</h2>
+    <p>لقد سجلت الدخول بنجاح.</p>
+    <button id="logout-button">تسجيل الخروج</button>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // تمرير إعدادات Supabase من Flask إلى JavaScript (إذا احتجت إليها هنا أيضاً)
+    const SUPABASE_URL = "{{ supabase_url }}"; // قد لا تكون ضرورية هنا إذا كان auth.js يعالجها
+    const SUPABASE_KEY = "{{ supabase_key }}";
+</script>
+<script src="{{ url_for('static', filename='js/auth.js') }}"></script> {# قد تحتاج لتقسيم auth.js #}
+<script>
+    // تسجيل الخروج من الداشبورد
+    const logoutButton = document.getElementById('logout-button');
+    if (logoutButton) {
+        logoutButton.addEventListener('click', async () => {
+            // تسجيل الخروج من Supabase أولاً (يجب أن يكون عميل Supabase متاحاً هنا)
+            // من الأفضل أن يكون لديك كائن Supabase عالمي في auth.js
+            if (window.supabaseClient) { // تحقق من وجوده
+                const { error } = await window.supabaseClient.auth.signOut();
+                if (error) {
+                    console.error('Error signing out from Supabase:', error.message);
+                    // يمكنك عرض رسالة خطأ للمستخدم
+                }
+            }
+            // ثم إعادة التوجيه إلى مسار تسجيل الخروج في Flask الذي يمسح الجلسة
+            window.location.href = "{{ url_for('logout') }}";
+        });
+    }
+</script>
+{% endblock %}
