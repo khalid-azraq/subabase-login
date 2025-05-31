@@ -1,0 +1,141 @@
+{% extends "layout.html" %}
+{% block title %}اختر باقتك{% endblock %}
+
+{% block content %}
+<div class="pricing-container">
+    <h2>باقات الاشتراك</h2>
+    <div id="paypal-message" class="message" style="display:none;"></div>
+
+    <div class="plans">
+        <div class="plan">
+            <h3>باقة مجانية</h3>
+            <p>ميزات أساسية محدودة.</p>
+            {% if current_plan == 'free' or not current_plan %}
+                <p>أنت مشترك حاليًا في هذه الباقة.</p>
+            {% else %}
+                <!-- يمكن إضافة زر للرجوع للباقة المجانية إذا كان منطقيًا -->
+            {% endif %}
+        </div>
+
+        <div class="plan">
+            <h3>باقة برو</h3>
+            <p>ميزات متقدمة بسعر $10/شهر.</p>
+            {% if current_plan == 'pro' %}
+                <p>أنت مشترك حاليًا في هذه الباقة.</p>
+            {% else %}
+                <button class="subscribe-button" data-plan-id="PRO_PLAN_ID_FROM_PAYPAL" data-plan-name="pro">اشترك الآن (برو)</button>
+            {% endif %}
+        </div>
+
+        <div class="plan">
+            <h3>باقة بريميوم</h3>
+            <p>جميع الميزات بسعر $20/شهر.</p>
+            {% if current_plan == 'premium' %}
+                <p>أنت مشترك حاليًا في هذه الباقة.</p>
+            {% else %}
+                <button class="subscribe-button" data-plan-id="PREMIUM_PLAN_ID_FROM_PAYPAL" data-plan-name="premium">اشترك الآن (بريميوم)</button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- PayPal JavaScript SDK -->
+<script src="https://www.paypal.com/sdk/js?client-id={{ PAYPAL_CLIENT_ID }}&intent=subscription&vault=true"></script>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // تمرير متغيرات من Flask (إذا لزم الأمر، أو الاعتماد على SDK مباشرة)
+    // const PAYPAL_CLIENT_ID = "{{ PAYPAL_CLIENT_ID }}"; // مُمرر بالفعل في رابط الـ SDK
+
+    document.querySelectorAll('.subscribe-button').forEach(button => {
+        button.addEventListener('click', async function() {
+            const planId = this.dataset.planId; // معرف الخطة من PayPal الذي ستنشئه
+            const planName = this.dataset.planName; // "pro" أو "premium"
+
+            // 1. إنشاء الاشتراك على خادمك (Flask)
+            try {
+                const response = await fetch("{{ url_for('create_paypal_subscription') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        // يمكنك إضافة CSRF token هنا إذا كنت تستخدمه
+                    },
+                    body: JSON.stringify({ plan_id: planId, plan_name: planName })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'فشل إنشاء الاشتراك من جانب الخادم.');
+                }
+
+                const subscriptionData = await response.json();
+                const paypalSubscriptionId = subscriptionData.paypal_subscription_id; // هذا هو معرف الاشتراك من PayPal
+
+                // 2. عرض زر PayPal للموافقة على الاشتراك الذي تم إنشاؤه
+                // (هذا مثال مبسط، قد تحتاج لتكييفه بناءً على استجابة API إنشاء الاشتراك)
+                // في الغالب، بعد إنشاء الاشتراك بنجاح من الخادم،
+                // سترجع الاستجابة `approve_url` الذي توجه إليه المستخدم مباشرة،
+                // أو قد تستخدم PayPal JS SDK لتفعيل الدفع.
+
+                // إذا كان API الخادم يرجع approve_url:
+                if (subscriptionData.approve_url) {
+                    window.location.href = subscriptionData.approve_url;
+                } else {
+                     // أو إذا كنت ستستخدم أزرار PayPal JS SDK بشكل أكثر تفاعلية:
+                    renderPayPalButton(paypalSubscriptionId); // ستحتاج لإنشاء هذه الدالة
+                    showMessage('الرجاء إكمال الدفع عبر نافذة PayPal.', 'info', document.getElementById('paypal-message'));
+                }
+
+            } catch (error) {
+                console.error('Error during PayPal subscription process:', error);
+                showMessage('حدث خطأ: ' + error.message, 'error', document.getElementById('paypal-message'));
+            }
+        });
+    });
+
+    function renderPayPalButton(paypalSubscriptionId) {
+        // يمكن إزالة أي أزرار PayPal قديمة إذا لزم الأمر
+        const paypalButtonContainer = document.getElementById('paypal-button-container'); // ستحتاج لإضافة هذا العنصر في HTML
+        if (paypalButtonContainer) paypalButtonContainer.innerHTML = '';
+
+
+        paypal.Buttons({
+            createSubscription: function(data, actions) {
+                // لا ننشئ الاشتراك هنا، بل نستخدم المعرف الذي تم إنشاؤه من الخادم
+                return paypalSubscriptionId;
+            },
+            onApprove: function(data, actions) {
+                // تم اعتماد الاشتراك بنجاح من قبل المستخدم
+                // PayPal سيرسل webhook إلى خادمك لتأكيد هذا.
+                // يمكنك هنا توجيه المستخدم إلى صفحة نجاح أو تحديث الواجهة.
+                showMessage('تمت الموافقة على الاشتراك بنجاح! يتم تحديث حالتك...', 'success', document.getElementById('paypal-message'));
+                // window.location.href = "{{ url_for('payment_success_paypal') }}?subscriptionID=" + data.subscriptionID;
+                // من الأفضل انتظار الـ webhook لتحديث قاعدة البيانات قبل التوجيه النهائي
+                // يمكنك عرض رسالة انتظار هنا والتحقق من حالة الاشتراك عبر AJAX
+            },
+            onCancel: function (data) {
+                // ألغى المستخدم الدفع
+                showMessage('تم إلغاء عملية الدفع.', 'info', document.getElementById('paypal-message'));
+                // window.location.href = "{{ url_for('payment_cancel_paypal') }}";
+            },
+            onError: function (err) {
+                // حدث خطأ
+                console.error('PayPal Buttons Error:', err);
+                showMessage('حدث خطأ أثناء معالجة الدفع عبر PayPal. يرجى المحاولة مرة أخرى.', 'error', document.getElementById('paypal-message'));
+            }
+        }).render('#paypal-button-container'); // تأكد من وجود <div id="paypal-button-container"></div> في HTML
+    }
+
+    // دالة showMessage (يجب أن تكون لديك بالفعل)
+    function showMessage(message, type = 'error', targetDiv) {
+        if (targetDiv) {
+            targetDiv.textContent = message;
+            targetDiv.className = `message ${type}`;
+            targetDiv.style.display = 'block';
+            setTimeout(() => { targetDiv.style.display = 'none'; }, 7000); // إخفاء الرسالة بعد 7 ثوانٍ
+        }
+    }
+
+</script>
+{% endblock %}
